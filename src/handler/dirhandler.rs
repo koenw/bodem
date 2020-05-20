@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use snafu::ResultExt;
 use std::path::PathBuf;
 use tokio::fs::File;
 use tokio::prelude::*;
@@ -16,49 +17,47 @@ impl DirHandler {
     {
         Self { root: root.into() }
     }
+
+    fn list_dir<P>(&self, path: P) -> Result<String>
+    where
+        P: AsRef<std::path::Path>,
+    {
+        let full_path = &self.root.join(path.as_ref());
+        let dir = full_path.read_dir().context(ReadDir {
+            path: full_path.clone(),
+        })?;
+        let paths = dir.filter_map(|entry| entry.ok()).map(|entry| entry.path());
+
+        let mut result = String::new();
+        for full_path in paths {
+            let user_path = full_path.strip_prefix(&self.root).context(ValidatePath)?;
+            // The file type indicator according to the gopher spec.
+            let file_type = if full_path.is_dir() { 1 } else { 0 };
+            let entry_line = format!("{}\t{}\r\n", file_type, user_path.to_string_lossy());
+            result.push_str(&entry_line);
+        }
+        Ok(result)
+    }
 }
 
 #[async_trait]
 impl Handler for DirHandler {
     async fn handle(&self, path: &str) -> Result<Vec<u8>> {
-        let mut response: Vec<u8> = vec![];
-
         // TODO: check if the full_path is really a child of our `root` (e.g. to prevent
         // `../` escapes).
         let full_path = self.root.join(path);
 
         if full_path.is_dir() {
-            let dir = full_path.read_dir().context(ReadDir {
-                path: full_path.clone(),
-            })?;
-            for p in dir {
-                if let Ok(p) = p {
-                    let path = p.path();
-                    let path = path
-                        .strip_prefix(&self.root)
-                        .context(ValidatePath)?
-                        .to_string_lossy();
-                    let entry = format!(
-                        "{}\t{}\r\n",
-                        if p.metadata().context(ReadFileMetadata)?.is_dir() {
-                            1
-                        } else {
-                            0
-                        },
-                        path
-                    );
-
-                    response.extend_from_slice(entry.as_bytes());
-                }
-            }
+            Ok(self.list_dir(path)?.into_bytes())
         } else {
+            let mut response: Vec<u8> = vec![];
             let mut file = File::open(&full_path).await.context(OpenFile {
                 path: full_path.clone(),
             })?;
             file.read_to_end(&mut response).await.context(ReadFile {
                 path: full_path.clone(),
             })?;
+            Ok(response)
         }
-        Ok(response)
     }
 }

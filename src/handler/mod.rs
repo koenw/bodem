@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use snafu::{ResultExt, Snafu};
+use snafu::Snafu;
 use std::path::PathBuf;
 
 mod dirhandler;
