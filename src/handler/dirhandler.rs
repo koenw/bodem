@@ -11,11 +11,13 @@ pub struct DirHandler {
 }
 
 impl DirHandler {
-    pub fn new<P>(root: P) -> Self
+    pub fn new<P>(root: P) -> Result<Self>
     where
         P: Into<PathBuf>,
     {
-        Self { root: root.into() }
+        Ok(Self {
+            root: root.into().canonicalize().context(PathLookup)?,
+        })
     }
 
     fn list_dir<P>(&self, path: P) -> Result<String>

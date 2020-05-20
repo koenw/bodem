@@ -2,17 +2,39 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::net::TcpListener;
 use tokio::prelude::*;
 
+use structopt::StructOpt;
+
 mod handler;
 
 use handler::{DirHandler, Handler};
 
+#[derive(Debug, StructOpt)]
+#[structopt(name = "bodem", about = "Simple gopher server")]
+struct Args {
+    #[structopt(
+        name = "listen",
+        short,
+        long,
+        default_value = "127.0.0.1:7070",
+        env = "BODEM_LISTEN"
+    )]
+    listen_addr: String,
+    #[structopt(
+        name = "root",
+        help = "Directory to serve",
+        default_value = "./",
+        env = "BODEM_ROOT"
+    )]
+    root: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // TODO: Make listen address and root configurable.
-    println!("Accepting connections on 127.0.0.1:7070");
-    let mut listener = TcpListener::bind("127.0.0.1:7070").await?;
-    let handler = DirHandler::new("/tmp");
+    let args = Args::from_args();
+    let mut listener = TcpListener::bind(&args.listen_addr).await?;
+    let handler = DirHandler::new(args.root)?;
 
+    println!("Accepting connections on {}", args.listen_addr);
     loop {
         let (socket, addr) = listener.accept().await?;
         match handle_connection(socket, &handler).await {
