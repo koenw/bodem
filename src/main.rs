@@ -32,9 +32,9 @@ struct Args {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::from_args();
     let mut listener = TcpListener::bind(&args.listen_addr).await?;
-    let handler = DirHandler::new(args.root)?;
+    let handler = DirHandler::new(&args.root)?;
 
-    println!("Accepting connections on {}", args.listen_addr);
+    println!("Serving {} on {}", args.root, args.listen_addr);
     loop {
         let (socket, addr) = listener.accept().await?;
         match handle_connection(socket, &handler).await {
@@ -54,10 +54,10 @@ where
     H: Handler,
 {
     let mut buf = vec![];
-    let (reader, _writer) = socket.split();
-
-    let mut buf_reader = BufReader::new(reader);
-    buf_reader.read_until(b'\n', &mut buf).await?;
+    {
+        let mut buf_reader = BufReader::new(socket.split().0);
+        buf_reader.read_until(b'\n', &mut buf).await?;
+    }
 
     let path = String::from_utf8_lossy(&buf);
     let path = path.trim_end();
