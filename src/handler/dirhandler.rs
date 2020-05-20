@@ -43,9 +43,10 @@ impl DirHandler {
 #[async_trait]
 impl Handler for DirHandler {
     async fn handle(&self, path: &str) -> Result<Vec<u8>> {
-        // TODO: check if the full_path is really a child of our `root` (e.g. to prevent
-        // `../` escapes).
-        let full_path = self.root.join(path);
+        let full_path = self.root.join(path).canonicalize().context(PathLookup)?;
+        if !full_path.starts_with(&self.root) {
+            return Err(Error::RootEscape);
+        }
 
         if full_path.is_dir() {
             Ok(self.list_dir(path)?.into_bytes())

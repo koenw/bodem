@@ -25,6 +25,10 @@ pub enum Error {
     ReadFileMetadata {
         source: std::io::Error,
     },
+    PathLookup {
+        source: std::io::Error,
+    },
+    RootEscape,
 }
 
 type Result<T, E = Error> = std::result::Result<T, E>;
