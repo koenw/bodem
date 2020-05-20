@@ -8,13 +8,18 @@ use handler::{DirHandler, Handler};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: Make listen address and root configurable.
+    println!("Accepting connections on 127.0.0.1:7070");
     let mut listener = TcpListener::bind("127.0.0.1:7070").await?;
     let handler = DirHandler::new("/tmp");
 
     loop {
         let (socket, addr) = listener.accept().await?;
-        println!("Incoming from {}!", addr);
-        handle_connection(socket, &handler).await?;
+        match handle_connection(socket, &handler).await {
+            Ok(_) => {}
+            Err(error) => {
+                dbg!(error, addr);
+            }
+        };
     }
 }
 
@@ -33,8 +38,7 @@ where
 
     let path = String::from_utf8_lossy(&buf);
     let path = path.trim_end();
-    dbg!("requested path: {}", path);
-    let response = handler.handle(path).await;
+    let response = handler.handle(path).await?;
     socket.write_all(&response).await?;
 
     Ok(())
