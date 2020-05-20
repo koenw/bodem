@@ -1,9 +1,9 @@
-use tokio::prelude::*;
+use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::net::TcpListener;
-use tokio::io::{BufReader, AsyncBufReadExt};
+use tokio::prelude::*;
 
 mod handler;
-use handler::{Handler, DirHandler};
+use handler::{DirHandler, Handler};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -18,7 +18,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 }
 
-async fn handle_connection<H>(mut socket: tokio::net::TcpStream, handler: &H) -> Result<(), Box<dyn std::error::Error>> where H: Handler {
+async fn handle_connection<H>(
+    mut socket: tokio::net::TcpStream,
+    handler: &H,
+) -> Result<(), Box<dyn std::error::Error>>
+where
+    H: Handler,
+{
     let mut buf = vec![];
     let (reader, _writer) = socket.split();
 
