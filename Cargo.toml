@@ -1,0 +1,9 @@
+[package]
+name = "bodem"
+version = "0.1.0"
+authors = ["Koen Wilde <koen@chillheid.nl>"]
+edition = "2018"
+
+[dependencies]
+tokio = { "version" = "0.2", features = ["rt-threaded", "macros", "tcp", "dns", "io-util", "fs"] }
+async-trait = "^0.1"
