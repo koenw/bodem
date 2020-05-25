@@ -67,3 +67,8 @@ whole lot nicer to use with a proper client. Wikipedia has a list of clients,
 but just to get started I'd recommend lynx. Just make sure you prepend the URL
 with `gopher://` (e.g. `lynx gopher://localhost:7070`) or lynx will default to
 HTTP.
+
+## License
+
+You're free to use, modify and distribute this software under the terms of the
+MIT license.
