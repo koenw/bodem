@@ -5,9 +5,9 @@ Bodem is a simple Gopher server in rust.
 ## Why?
 
 I really like how radically simple the Gopher protocol is. This feature is even
-more appealing to me today, now that even a 'simple' web page involves a ton of
-moving parts (e.g. let's encrypt integration, checking for vulnerabilities in
-your dependencies, etc.).
+more appealing to me today, since these days even a 'simple' web page probably
+involves a ton of moving parts (e.g. let's encrypt integration, keeping track of
+vulnerabilities in your dependencies, etc.).
 
 To give you an example of how simple the Gopher protocol really is, here is an
 example of using *netcat* to download a file over Gopher:
@@ -20,6 +20,8 @@ I would encourage everyone to read the Gopher [RFC
 1436](https://tools.ietf.org/html/rfc1436) and/or [wikipedia
 entry](https://en.wikipedia.org/wiki/Gopher_(protocol)), if only for an
 interesting piece of history.
+
+Also, COVID-19 has me quarantined and I wanted to do some nerding :)
 
 ## Usage
 
@@ -56,3 +58,12 @@ don't forget to check your local package manager.
 |`cargo build --release` | Build a non-debug binary to `target/release/bodem`. |
 |`cargo run` | Run a debug build directly. |
 |`cargo run --release` | Run a non-debug build directly. |
+
+## Gopher clients
+
+Because Gopher is so simple, you might actually not need a client (as
+demonstrated in the *netcat* example above). Having said that, it's still a
+whole lot nicer to use with a proper client. Wikipedia has a list of clients,
+but just to get started I'd recommend lynx. Just make sure you prepend the URL
+with `gopher://` (e.g. `lynx gopher://localhost:7070`) or lynx will default to
+HTTP.
