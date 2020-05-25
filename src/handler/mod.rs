@@ -27,6 +27,7 @@ pub enum Error {
     },
     PathLookup {
         source: std::io::Error,
+        path: PathBuf,
     },
     RootEscape,
 }

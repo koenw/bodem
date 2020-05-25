@@ -23,22 +23,27 @@ interesting piece of history.
 
 ## Usage
 
-*Bodem* has only two configuration options: the address to listen on and the
-directory to serve. The default listen address is `127.0.0.1:7070` and the
-default root directory is the current directory.
+*Bodem* only has a few configuration options, which you can see in the table
+below. Basically, you tell it what directory to serve and what port to listen
+on. Because the gopher protocol has no concept of relative links, *bodem* also
+needs to know what address clients can connect to in order to construct working
+links.
 
-Since there are only two configuration options, the following examples should
-cover your use case.
-
-All configuration can also be done through environment variables, so it's totally ready for the cloud :)
+| short | long | env | default | description |
+|---|---|---|---|---|
+|`-l`|`--listen`|`BODEM_LISTEN`|127.0.0.1:7070|Address to listen on, in the form *<ip>:<port>*.|
+|||`BODEM_ROOT`|`$PWD`|Directory to serve. |
+||`--port`|`BODEM_EXTERNAL_PORT`|7070|External port that clients can connect to. Used to construct links.|
+||`--host`|`BODEM_EXTERNAL_HOST`|localhost|External hostname that clients can connect to. Used to construct links. |
+|`-h`|`--help`|||Print a help message and quit.|
 
 ### Examples
 
 | Command | Description |
 |---------|-------------|
-|`bodem -l 0.0.0.0:70` | Serve the current directory on port 70 (the official gopher port) on all interfaces. |
+|`bodem -l 0.0.0.0:70 --host gopher.example.com` | Serve the current directory on port 70 (the official gopher port) on all interfaces. |
 |`bodem /srv/gopher` | Serve the directory `/srv/gopher` on the default address (`127.0.0.1:7070`). |
-|`bodem -l 172.16.11.135:1234 /some/stuff` | Serve the directory `/some/stuff` on `172.16.11.135:1234` (This of course will only work if you have an interface with this IP address configured). |
+|`bodem -l 172.16.11.135:1234 --host gopher.internal.example.com --port 1234 /some/stuff` | Serve the directory `/some/stuff` on `172.16.11.135:1234` (This of course will only work if you have an interface with this IP address configured). |
 
 ## Building
 

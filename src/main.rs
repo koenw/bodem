@@ -26,13 +26,29 @@ struct Args {
         env = "BODEM_ROOT"
     )]
     root: String,
+    #[structopt(
+        name = "host",
+        long,
+        help = "External hostname from the client's point-of-view (used to construct links)",
+        default_value = "localhost",
+        env = "BODEM_EXTERNAL_HOST"
+    )]
+    host: String,
+    #[structopt(
+        name = "port",
+        long,
+        help = "External port from the client's point-of-view (used to construct links)",
+        default_value = "7070",
+        env = "BODEM_EXTERNAL_PORT"
+    )]
+    port: u16,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::from_args();
     let mut listener = TcpListener::bind(&args.listen_addr).await?;
-    let handler = DirHandler::new(&args.root)?;
+    let handler = DirHandler::new(&args.root, args.host, args.port)?;
 
     println!("Serving {} on {}", args.root, args.listen_addr);
     loop {
